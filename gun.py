@@ -50,7 +50,7 @@ class Ball:
         if hits:
             self.pos.y = hits[0].rect.top + 1
             self.vel.y = 0
-        self.vy-=0.8
+        self.vy-=0.9
         self.x += self.vx
         self.y -= self.vy
 
