@@ -1,6 +1,6 @@
 import math
 from random import choice
-import random as rnd
+
 import pygame
 
 
@@ -46,11 +46,7 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
         # FIXME
-        hits = pygame.sprite.spritecollide(balls , platforms, False)
-        if hits:
-            self.pos.y = hits[0].rect.top + 1
-            self.vel.y = 0
-        self.vy-=0.9
+        self.vy-=0.5
         self.x += self.vx
         self.y -= self.vy
 
@@ -70,13 +66,8 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        """hits = pygame.sprite.spritecollide(balls , target, False)
-        if hits:
-            self.pos.y = hits[0].rect.top + 1
-            self.vel.y = 0"""
         # FIXME
         return False
-
 
 
 class Gun:
@@ -119,7 +110,6 @@ class Gun:
     def draw(self):
         # FIXIT don't know how to do it
         pass
-
     def power_up(self):
         if self.f2_on:
             if self.f2_power < 100:
@@ -149,8 +139,7 @@ class Target:
     def draw(self):
         ...
 
-platforms = pygame.sprite.Group()
-platforms.add()
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
