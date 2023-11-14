@@ -38,7 +38,7 @@ class Ball:
         self.vy = 0
         self.ax=0
         self.ay=-1
-        self.kx=-0.02
+        self.kx=-0.01
         self.ky=-0.02
         self.color = choice(GAME_COLORS)
         self.live = 30
