@@ -1,6 +1,6 @@
 import math
 from random import choice
-
+from random import randint
 import pygame
 import sys
 
@@ -38,7 +38,7 @@ class Ball:
         self.vy = 0
         self.ax=0
         self.ay=-1
-        self.kx=-0.01
+        self.kx=-0.02
         self.ky=-0.02
         self.color = choice(GAME_COLORS)
         self.live = 30
@@ -147,6 +147,48 @@ class Target:
     # self.live = 1
     # FIXME: don't work!!! How to call this functions when object is created?
     # self.new_target()
+    def __init__(self, screen):
+        """ Конструктор класса ball
+
+        Args:
+        x - начальное положение мяча по горизонтали
+        y - начальное положение мяча по вертикали
+        """
+        self.screen = screen
+        self.points = 0
+        self.live = 1
+        self.x = randint(600, 780)
+        self.y = randint(300, 550)
+        self.vx = 0
+        self.vy = 0
+        self.k = -0.001
+        self.r = randint(10, 50)
+        self.color = choice([RED, CYAN])
+
+    def move(self):
+        """Переместить мяч по прошествии единицы времени.
+
+        Метод описывает перемещение мяча за один кадр перерисовки. То есть, обновляет значения
+        self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
+        и стен по краям окна (размер окна 800х600).
+        """
+        # FIXME
+        self.vy+=randint(-1,1)+self.ky*self.vy
+        self.vx+=randint(-1,1)+self.kx*self.vx
+        self.x += self.vx
+        self.y -= self.vy
+        if self.x - self.r <= 0:
+            self.x = self.r
+            self.vx *= -1
+        if self.y - self.r <= 0:
+            self.y = self.r
+            self.vy *= -1
+        if self.x + self.r >= 800:
+            self.x = 800 - self.r
+            self.vx *= -1
+        if self.y + self.r >= 600:
+            self.y = 600 - self.r
+            self.vy *= -1
 
     def new_target(self):
         """ Инициализация новой цели. """
@@ -160,7 +202,12 @@ class Target:
         self.points += points
 
     def draw(self):
-        ...
+        pygame.draw.circle(
+            self.screen,
+            self.color,
+            (self.x, self.y),
+            self.r
+        )
 
 
 pygame.init()
@@ -170,7 +217,7 @@ balls = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
-target = Target()
+target = Target(screen)
 finished = False
 
 while not finished:
