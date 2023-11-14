@@ -2,6 +2,7 @@ import math
 from random import choice
 
 import pygame
+import sys
 
 
 FPS = 30
@@ -35,6 +36,10 @@ class Ball:
         self.r = 10
         self.vx = 0
         self.vy = 0
+        self.ax=0
+        self.ay=-1
+        self.kx=-0.02
+        self.ky=-0.02
         self.color = choice(GAME_COLORS)
         self.live = 30
 
@@ -46,9 +51,22 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
         # FIXME
-        self.vy-=0.5
+        self.vy+=self.ay+self.ky*self.vy
+        self.vx+=self.ax+self.kx*self.vx
         self.x += self.vx
         self.y -= self.vy
+        if self.x - self.r <= 0:
+            self.x = self.r
+            self.vx *= -1
+        if self.y - self.r <= 0:
+            self.y = self.r
+            self.vy *= -1
+        if self.x + self.r >= 800:
+            self.x = 800 - self.r
+            self.vx *= -1
+        if self.y + self.r >= 600:
+            self.y = 600 - self.r
+            self.vy *= -1
 
     def draw(self):
         pygame.draw.circle(
@@ -108,7 +126,7 @@ class Gun:
             self.color = GREY
 
     def draw(self):
-        # FIXIT don't know how to do it
+        pygame.draw.rect(self.screen, WHITE, (40, 40, 40, 40))
         pass
     def power_up(self):
         if self.f2_on:
