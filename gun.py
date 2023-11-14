@@ -126,8 +126,13 @@ class Gun:
             self.color = GREY
 
     def draw(self):
-        pygame.draw.rect(self.screen, WHITE, (40, 40, 40, 40))
-        pass
+        x1 = (40, 450)
+        x3 = (40, 430)
+        x2 = (0, 450)
+        x4 = (0, 430)
+
+        pygame.draw.polygon(screen, self.color, (x1, x2, x4, x3))
+
     def power_up(self):
         if self.f2_on:
             if self.f2_power < 100:
