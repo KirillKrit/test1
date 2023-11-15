@@ -130,8 +130,8 @@ class Gun:
     def draw(self):
         x1 = (40, 450)
         x3 = (40, 430)
-        x2 = (0, 450)
-        x4 = (0, 430)
+        x2 = (0, 450 - 40*math.tan(self.an))
+        x4 = (0, 430 - 40*math.tan(self.an))
 
         pygame.draw.polygon(screen, self.color, (x1, x2, x4, x3))
 
@@ -251,5 +251,6 @@ while not finished:
             target = Target(screen)
             b.live = 0
     gun.power_up()
+
 
 pygame.quit()
