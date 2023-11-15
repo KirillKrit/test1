@@ -84,7 +84,7 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        # FIXME
+        if self.x
         return False
 
 
@@ -148,17 +148,19 @@ class Target:
     # FIXME: don't work!!! How to call this functions when object is created?
     # self.new_target()
     def __init__(self, screen):
-        """ Конструктор класса ball
+        """ Конструктор класса Target
 
         Args:
-        x - начальное положение мяча по горизонтали
-        y - начальное положение мяча по вертикали
+        x,y - начальное положение мяча по горизонтали задатся случайно
+
         """
         self.screen = screen
         self.points = 0
         self.live = 1
         self.x = randint(600, 780)
         self.y = randint(300, 550)
+        self.kx=-0.2
+        self.ky=-0.2
         self.vx = 0
         self.vy = 0
         self.k = -0.001
@@ -166,17 +168,17 @@ class Target:
         self.color = choice([RED, CYAN])
 
     def move(self):
-        """Переместить мяч по прошествии единицы времени.
+        """Переместить target по прошествии единицы времени.
 
         Метод описывает перемещение мяча за один кадр перерисовки. То есть, обновляет значения
         self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
         и стен по краям окна (размер окна 800х600).
         """
         # FIXME
-        self.vy+=randint(-1,1)+self.ky*self.vy
-        self.vx+=randint(-1,1)+self.kx*self.vx
+        self.vy += randint(-1,1)+self.k*self.vy
+        self.vx += randint(-1,1)+self.k*self.vx
         self.x += self.vx
-        self.y -= self.vy
+        self.y += self.vy
         if self.x - self.r <= 0:
             self.x = self.r
             self.vx *= -1
@@ -224,6 +226,7 @@ while not finished:
     screen.fill(WHITE)
     gun.draw()
     target.draw()
+    target.move()
     for b in balls:
         b.draw()
     pygame.display.update()
