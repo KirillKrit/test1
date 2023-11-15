@@ -34,7 +34,7 @@ class Ball:
         self.x = x
         self.y = y
         self.r = 10
-        self.vx = 0
+        self.vx = 0   #сила трения
         self.vy = 0
         self.ax=0
         self.ay=-1
@@ -84,8 +84,10 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        if self.x
+        if ((self.x-obj.x)**2+(self.y-obj.y)**2)**0.5<=(self.r+obj.r):
+            return True
         return False
+
 
 
 class Gun:
@@ -194,9 +196,9 @@ class Target:
 
     def new_target(self):
         """ Инициализация новой цели. """
-        x = self.x = rnd(600, 780)
-        y = self.y = rnd(300, 550)
-        r = self.r = rnd(2, 50)
+        x = self.x = randint(600, 780)
+        y = self.y = randint(300, 550)
+        r = self.r = randint(2, 50)
         color = self.color = RED
 
     def hit(self, points=1):
@@ -244,10 +246,10 @@ while not finished:
 
     for b in balls:
         b.move()
-        if b.hittest(target) and target.live:
-            target.live = 0
+        if b.hittest(target):
             target.hit()
-            target.new_target()
+            target = Target(screen)
+            b.live = 0
     gun.power_up()
 
 pygame.quit()
