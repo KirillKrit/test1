@@ -90,6 +90,13 @@ class Ball:
         if ((self.x-obj.x)**2+(self.y-obj.y)**2)**0.5<=(self.r+obj.r):
             return True
         return False
+class NewBall(Ball):
+    def draw(self):
+        target_surf = pygame.image.load('ball1.jpg')
+        DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
+        target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
+        screen.blit(target_surf, (self.x, self.y))
+
 
 
 
@@ -202,7 +209,6 @@ class Target:
         """ Инициализация новой цели. """
         x = self.x = randint(600, 780)
         y = self.y = randint(300, 550)
-        r = self.r = randint(2, 50)
         color = self.color = RED
 
     def hit(self, points=1):
@@ -232,6 +238,7 @@ all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
+target2=Target(screen)
 finished = False
 font=pygame.font.Font(None,36)
 
@@ -244,6 +251,8 @@ while not finished:
     gun.draw()
     target.draw()
     target.move()
+    target2.draw()
+    target2.move()
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -266,9 +275,18 @@ while not finished:
             target = Target(screen)
             b.live = 0
             point+=1
+            balls.remove(b)
+        if b.hittest(target2):
+            target2.hit()
+            target2=Target(screen)
+            b.live = 0
+            point+=1
+            balls.remove(b)
         if len(balls) > 5:
             balls.pop(0)
     gun.power_up()
+
+
 
 
 pygame.quit()
