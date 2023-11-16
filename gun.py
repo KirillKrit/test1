@@ -23,6 +23,8 @@ WIDTH = 800
 HEIGHT = 600
 
 
+
+
 class Ball:
     def __init__(self, screen: pygame.Surface, x=40, y=450):
         """ Конструктор класса ball
@@ -159,8 +161,9 @@ class Target:
         """
         self.screen = screen
         self.points = 0
+        self.miss=0
         self.live = 1
-        self.x = randint(600, 780)
+        self.x = randint(500, 780)
         self.y = randint(300, 550)
         self.kx=-0.2
         self.ky=-0.2
@@ -178,7 +181,7 @@ class Target:
         и стен по краям окна (размер окна 800х600).
         """
         # FIXME
-        self.vy += randint(-1,1)+self.k*self.vy
+        self.vy += randint(-1,1)
         self.vx += randint(-1,1)+self.k*self.vx
         self.x += self.vx
         self.y += self.vy
@@ -205,6 +208,8 @@ class Target:
     def hit(self, points=1):
         """Попадание шарика в цель."""
         self.points += points
+    #def nothit(self,miss=1):
+        #self.miss+=miss
 
     def draw(self):
         pygame.draw.circle(
@@ -220,21 +225,25 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
 balls = []
-
+window = pygame.display.set_mode((WIDTH, HEIGHT))
+background = pygame.image.load("bg.jpg")
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
 finished = False
-
+font=pygame.font.Font(None,36)
 
 while not finished:
-    screen.fill(WHITE)
+    window.blit(background, (0, 0))  # !!!
+    all_sprites.draw(window)  # !!!
+    #pygame.display.update()
+    score_text = font.render("Очки: " + str(point), True, BLACK)
+    screen.blit(score_text, (10, 10))
     gun.draw()
     target.draw()
     target.move()
-    font=pygame.font.Font(None,36)
-    score_text = font.render("Очки: " + str(point), True, BLACK)
-    screen.blit(score_text, (10, 10))
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -250,18 +259,16 @@ while not finished:
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
 
-
     for b in balls:
         b.move()
-        if b.hittest(target) :
+        if b.hittest(target):
             target.hit()
             target = Target(screen)
             b.live = 0
             point+=1
+        if len(balls) > 5:
+            balls.pop(0)
     gun.power_up()
-
-    if len(balls) > 4:
-        balls.pop(0)
 
 
 pygame.quit()
