@@ -6,6 +6,7 @@ import sys
 
 
 FPS = 30
+point=0
 
 RED = 0xFF0000
 BLUE = 0x0000FF
@@ -128,10 +129,10 @@ class Gun:
             self.color = GREY
 
     def draw(self):
-        x1 = (40, 450)
-        x3 = (40, 430)
-        x2 = (0, 450 - 40*math.tan(self.an))
-        x4 = (0, 430 - 40*math.tan(self.an))
+        x1 = (40 + math.cos(self.an + math.pi/4) * 20, 440 + math.sin(self.an + math.pi/4) * 20)
+        x3 = (40 + math.cos(self.an - math.pi/4) * 20, 440 + math.sin(self.an - math.pi/4) * 20)
+        x2 = (0, 440 + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
+        x4 = (0, 440 + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
 
         pygame.draw.polygon(screen, self.color, (x1, x2, x4, x3))
 
@@ -214,6 +215,7 @@ class Target:
         )
 
 
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
@@ -224,11 +226,15 @@ gun = Gun(screen)
 target = Target(screen)
 finished = False
 
+
 while not finished:
     screen.fill(WHITE)
     gun.draw()
     target.draw()
     target.move()
+    font=pygame.font.Font(None,36)
+    score_text = font.render("Очки: " + str(point), True, BLACK)
+    screen.blit(score_text, (10, 10))
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -244,13 +250,18 @@ while not finished:
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
 
+
     for b in balls:
         b.move()
-        if b.hittest(target):
+        if b.hittest(target) :
             target.hit()
             target = Target(screen)
             b.live = 0
+            point+=1
     gun.power_up()
+
+    if len(balls) > 4:
+        balls.pop(0)
 
 
 pygame.quit()
