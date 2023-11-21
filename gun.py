@@ -45,7 +45,7 @@ class Ball:
         self.ky=-0.02
         self.color = choice(GAME_COLORS)
         self.live = 30
-        self.lifetimer = 1
+        self.livetimer = 200
 
     def move(self):
         """Переместить мяч по прошествии единицы времени.
@@ -59,6 +59,7 @@ class Ball:
         self.vx+=self.ax+self.kx*self.vx
         self.x += self.vx
         self.y -= self.vy
+        self.livetimer-=1
         if self.x - self.r <= 0:
             self.x = self.r
             self.vx *= -1
@@ -98,20 +99,10 @@ class NewBall(Ball):
         self.vx+=0
         self.x += self.vx
         self.y -= self.vy
-        if self.x - self.r <= 0:
-            self.x = self.r
-            self.vx *= -1
-        if self.y - self.r <= 0:
-            self.y = self.r
-            self.vy *= -1
-        if self.x + self.r >= 800:
-            self.x = 800 - self.r
-            self.vx *= -1
-        if self.y + self.r >= 600:
-            self.y = 600 - self.r
-            self.vy *= -1
+        self.livetimer-=1
+
     def draw(self):
-        target_surf = pygame.image.load('ball1.jpg')
+        target_surf = pygame.image.load('ball1.png')
         DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
         target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
         screen.blit(target_surf, (self.x, self.y))
@@ -138,7 +129,10 @@ class Gun:
         """
         global balls, bullet
         bullet += 1
-        new_ball = Ball(self.screen)
+        if ball_type:
+            new_ball = Ball(self.screen)
+        else:
+            new_ball = NewBall(self.screen)
         new_ball.r += 5
         self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
@@ -308,6 +302,7 @@ class Bomb(pygame.sprite.Sprite):
 
 
 pygame.init()
+ball_type = True
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
 balls = []
@@ -349,7 +344,7 @@ while not finished:
             gun.targetting(event)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_f:
-                pass
+                ball_type = not ball_type
 
 
 
@@ -369,6 +364,8 @@ while not finished:
             balls.remove(b)
         if len(balls) > 5:
             balls.pop(0)
+        if b.livetimer<0:
+            balls.remove(b)
     gun.power_up()
 
 
