@@ -94,6 +94,9 @@ class Ball:
             return True
         return False
 class NewBall(Ball):
+    def __init__(self, *args, **kwargs):
+        Ball.__init__(self, *args, **kwargs)
+        self.livetimer = 90
     def move(self):
         self.vy+=0
         self.vx+=0
@@ -233,11 +236,6 @@ class Target:
             self.y = 600 - self.r
             self.vy *= -1
 
-    def new_target(self):
-        """ Инициализация новой цели. """
-        x = self.x = randint(600, 780)
-        y = self.y = randint(300, 550)
-        color = self.color = RED
 
     def hit(self, points=1):
         """Попадание шарика в цель."""
@@ -253,16 +251,13 @@ class Target:
             self.r
         )
 class Target2(Target):
-    def __init__(self, screen: pygame.Surface,
-                 x0=randint(30, WIDTH - 100),
-                 y0=randint(50, 600),
-                 r=randint(10, 30)
-                 ):
+    def __init__(self, screen: pygame.Surface):
+        self.screen = screen
         self.w=0.1
         self.R=randint(30,100)
-        self.x0=x0
-        self.y0=y0
-        self.r=r
+        self.x0=randint(30, WIDTH - 100)
+        self.y0=randint(50, HEIGHT-100)
+        self.r=randint(10, 30)
         self.color = BLUE
         self.a=0
         self.x = self.x0 + self.R * math.cos(self.a)
@@ -274,11 +269,13 @@ class Target2(Target):
         self.y = self.y0 + self.R * math.sin(self.a)
 
 
+
+
     def draw(self):
         target_surf = pygame.image.load('boom.png')
         DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
         target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
-        screen.blit(target_surf, (self.x, self.y))
+        self.screen.blit(target_surf, (self.x, self.y))
 
 class Bomb(pygame.sprite.Sprite):
     def __init__(self, minsize=10, maxsize=80, speed=1):
