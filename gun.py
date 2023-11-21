@@ -105,10 +105,10 @@ class NewBall(Ball):
         self.livetimer-=1
 
     def draw(self):
-        target_surf = pygame.image.load('ball1.png')
+        target_surf = pygame.image.load('ball2.png')
         DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
         target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
-        screen.blit(target_surf, (self.x, self.y))
+        screen.blit(target_surf, (self.x-self.r, self.y-self.r))
 
 
 
@@ -275,7 +275,8 @@ class Target2(Target):
         target_surf = pygame.image.load('boom.png')
         DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
         target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
-        self.screen.blit(target_surf, (self.x, self.y))
+        self.screen.blit(target_surf, (self.x - self.r, self.y - self.r))
+
 
 
 
@@ -338,7 +339,7 @@ while not finished:
             b.live = 0
             point+=1
             balls.remove(b)
-        if b.hittest(target2):
+        elif b.hittest(target2):
             target2.hit()
             target2=Target2(screen)
             b.live = 0
