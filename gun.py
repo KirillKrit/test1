@@ -277,22 +277,7 @@ class Target2(Target):
         target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
         self.screen.blit(target_surf, (self.x, self.y))
 
-class Bomb(pygame.sprite.Sprite):
-    def __init__(self, minsize=10, maxsize=80, speed=1):
-        pygame.sprite.Sprite.__init__(self)
-        self.size = randint(minsize, maxsize)
-        self.image = pygame.Surface((self.size, self.size))
-        pygame.draw.circle(self.image, RED, (self.size // 2, self.size // 2), self.size // 2)
-        self.image.set_colorkey(BLACK)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.rect.center = (randint(self.size, WIDTH - self.size), -self.size // 2)
-        self.speed = speed
 
-    def update(self):
-        self.rect.y += self.speed
-        if self.rect.top >= HEIGHT:
-            self.kill()
 
 
 
