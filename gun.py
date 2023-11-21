@@ -45,6 +45,7 @@ class Ball:
         self.ky=-0.02
         self.color = choice(GAME_COLORS)
         self.live = 30
+        self.lifetimer = 1
 
     def move(self):
         """Переместить мяч по прошествии единицы времени.
@@ -79,6 +80,7 @@ class Ball:
             self.r
         )
 
+
     def hittest(self, obj):
         """Функция проверяет сталкивалкивается ли данный обьект с целью, описываемой в обьекте obj.
 
@@ -91,6 +93,23 @@ class Ball:
             return True
         return False
 class NewBall(Ball):
+    def move(self):
+        self.vy+=0
+        self.vx+=0
+        self.x += self.vx
+        self.y -= self.vy
+        if self.x - self.r <= 0:
+            self.x = self.r
+            self.vx *= -1
+        if self.y - self.r <= 0:
+            self.y = self.r
+            self.vy *= -1
+        if self.x + self.r >= 800:
+            self.x = 800 - self.r
+            self.vx *= -1
+        if self.y + self.r >= 600:
+            self.y = 600 - self.r
+            self.vy *= -1
     def draw(self):
         target_surf = pygame.image.load('ball1.jpg')
         DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
@@ -131,18 +150,33 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
+            if (event.pos[0]-20)!=0:
+                self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
+            elif (event.pos[1]-450)>0:
+                self.an = math.pi/2
+            else:
+                self.an = -math.pi/2
         if self.f2_on:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        x1 = (40 + math.cos(self.an + math.pi/4) * 20, 440 + math.sin(self.an + math.pi/4) * 20)
-        x3 = (40 + math.cos(self.an - math.pi/4) * 20, 440 + math.sin(self.an - math.pi/4) * 20)
-        x2 = (0, 440 + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
-        x4 = (0, 440 + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
-
+        if abs(self.an) != math.pi/2:
+            x1 = (40 + math.cos(self.an + math.pi/4) * 20, 440 + math.sin(self.an + math.pi/4) * 20)
+            x3 = (40 + math.cos(self.an - math.pi/4) * 20, 440 + math.sin(self.an - math.pi/4) * 20)
+            x2 = (0, 440 + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
+            x4 = (0, 440 + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
+        elif self.an > 0:
+            x1 = (40 - 14.1, 440)
+            x2 = (40 - 14.1, 0)
+            x3 = (40 + 14.1, 440)
+            x4 = (40 + 14.1, 0)
+        else:
+            x1 = (40 + 14.1, 440)
+            x2 = (40 + 14.1, 600)
+            x3 = (40 - 14.1, 440)
+            x4 = (40 - 14.1, 600)
         pygame.draw.polygon(screen, self.color, (x1, x2, x4, x3))
 
     def power_up(self):
@@ -224,6 +258,52 @@ class Target:
             (self.x, self.y),
             self.r
         )
+class Target2(Target):
+    def __init__(self, screen: pygame.Surface,
+                 x0=randint(30, WIDTH - 100),
+                 y0=randint(50, 600),
+                 r=randint(10, 30)
+                 ):
+        self.w=0.1
+        self.R=randint(30,100)
+        self.x0=x0
+        self.y0=y0
+        self.r=r
+        self.color = BLUE
+        self.a=0
+        self.x = self.x0 + self.R * math.cos(self.a)
+        self.y = self.y0 + self.R * math.sin(self.a)
+        self.points = 0
+    def move2(self):
+        self.a += self.w
+        self.x = self.x0 + self.R * math.cos(self.a)
+        self.y = self.y0 + self.R * math.sin(self.a)
+
+
+    def draw(self):
+        target_surf = pygame.image.load('boom.png')
+        DEFAULT_IMAGE_SIZE = (2 * self.r, 2 * self.r)
+        target_surf = pygame.transform.scale(target_surf, DEFAULT_IMAGE_SIZE)
+        screen.blit(target_surf, (self.x, self.y))
+
+class Bomb(pygame.sprite.Sprite):
+    def __init__(self, minsize=10, maxsize=80, speed=1):
+        pygame.sprite.Sprite.__init__(self)
+        self.size = randint(minsize, maxsize)
+        self.image = pygame.Surface((self.size, self.size))
+        pygame.draw.circle(self.image, RED, (self.size // 2, self.size // 2), self.size // 2)
+        self.image.set_colorkey(BLACK)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.center = (randint(self.size, WIDTH - self.size), -self.size // 2)
+        self.speed = speed
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top >= HEIGHT:
+            self.kill()
+
+
 
 
 
@@ -238,7 +318,7 @@ all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
-target2=Target(screen)
+target2=Target2(screen)
 finished = False
 font=pygame.font.Font(None,36)
 
@@ -252,7 +332,7 @@ while not finished:
     target.draw()
     target.move()
     target2.draw()
-    target2.move()
+    target2.move2()
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -267,6 +347,11 @@ while not finished:
             gun.fire2_end(event)
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_f:
+                pass
+
+
 
     for b in balls:
         b.move()
@@ -278,7 +363,7 @@ while not finished:
             balls.remove(b)
         if b.hittest(target2):
             target2.hit()
-            target2=Target(screen)
+            target2=Target2(screen)
             b.live = 0
             point+=1
             balls.remove(b)
