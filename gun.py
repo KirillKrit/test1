@@ -207,7 +207,7 @@ class Target:
         self.ky=-0.2
         self.vx = 0
         self.vy = 0
-        self.k = -0.001
+        self.k = -0.002
         self.r = randint(10, 50)
         self.color = choice([RED, CYAN])
 
