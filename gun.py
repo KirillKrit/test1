@@ -415,7 +415,7 @@ gun2=Gun2(screen)
 target = Target(screen)
 target2=Target2(screen)
 missiles=[]
-for i in range(0):
+for i in range(3):
     missiles.append(booba(screen))
 
 finished = False
@@ -456,8 +456,6 @@ while not finished:
 
     clock.tick(FPS)
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            print(1)
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
