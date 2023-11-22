@@ -141,7 +141,7 @@ class Gun:
         else:
             new_ball = NewBall(self.screen, y=self.y)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        self.an = math.atan2((pygame.mouse.get_pos()[1]-new_ball.y), (pygame.mouse.get_pos()[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -222,7 +222,7 @@ class Gun2(Gun):
         else:
             new_ball = NewBall(self.screen, y=self.y)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        self.an = math.atan2((event.pygame.mouse.get_pos()[1]-new_ball.y), (event.pygame.mouse.get_pos()[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -232,9 +232,9 @@ class Gun2(Gun):
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            if (event.pos[0]-20)!=0:
-                self.an = math.atan((event.pos[1]-self.y) / (event.pos[0]-20))
-            elif (event.pos[1]-self.y)>0:
+            if (pygame.mouse.get_pos()[0]-20)!=0:
+                self.an = math.atan((pygame.mouse.get_pos()[1]-self.y) / (pygame.mouse.get_pos()[0]-20))
+            elif (pygame.mouse.get_pos()[1]-self.y)>0:
                 self.an = math.pi/2
             else:
                 self.an = -math.pi/2
@@ -415,15 +415,15 @@ gun2=Gun2(screen)
 target = Target(screen)
 target2=Target2(screen)
 missiles=[]
-for i in range(3):
+for i in range(0):
     missiles.append(booba(screen))
 
 finished = False
 font=pygame.font.Font(None,36)
 
 while not finished:
-    window.blit(background, (0, 0))  # !!!
-    all_sprites.draw(window)  # !!!
+    window.blit(background, (0, 0))
+    all_sprites.draw(window)
     #pygame.display.update()
     score_text = font.render("Очки: " + str(point), True, BLACK)
     screen.blit(score_text, (10, 10))
@@ -456,6 +456,8 @@ while not finished:
 
     clock.tick(FPS)
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            print(1)
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -464,12 +466,16 @@ while not finished:
             gun.fire2_end(event)
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
+            gun2.targetting(event)
 
-        elif event.type == pygame.KEYDOWN:
+        if pygame.key.get_pressed()[pygame.K_k] and event.type == pygame.KEYDOWN:
+            gun2.fire2_end(event)
+        elif pygame.key.get_pressed()[pygame.K_k] and event.type == pygame.KEYUP:
+            gun2.fire2_start(event)
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_g:
                 ball_type = not ball_type
-            elif event.key==pygame.K_SPACE:
-                gun2.fire_start(event)
+
 
 
 
@@ -488,6 +494,12 @@ while not finished:
             b.live = 0
             point+=1
             balls.remove(b)
+        if math.sqrt((b.x - gun.x)**2 + (b.y - gun.y)**2) < (b.r+10):
+            gun.y = 60
+            point = 0
+        elif math.sqrt((b.x - gun2.x)**2 + (b.y - gun2.y)**2) < (b.r+10):
+            gun2.y = 540
+            point = 0
         if len(balls) > 15:
             balls.pop(0)
         if (b in balls) and b.livetimer<0:
