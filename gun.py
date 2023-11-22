@@ -120,6 +120,7 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
+        self.y=440
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -133,9 +134,9 @@ class Gun:
         global balls, bullet
         bullet += 1
         if ball_type:
-            new_ball = Ball(self.screen)
+            new_ball = Ball(self.screen, y=self.y)
         else:
-            new_ball = NewBall(self.screen)
+            new_ball = NewBall(self.screen, y=self.y)
         new_ball.r += 5
         self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
@@ -148,8 +149,8 @@ class Gun:
         """Прицеливание. Зависит от положения мыши."""
         if event:
             if (event.pos[0]-20)!=0:
-                self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
-            elif (event.pos[1]-450)>0:
+                self.an = math.atan((event.pos[1]-self.y) / (event.pos[0]-20))
+            elif (event.pos[1]-self.y)>0:
                 self.an = math.pi/2
             else:
                 self.an = -math.pi/2
@@ -158,12 +159,23 @@ class Gun:
         else:
             self.color = GREY
 
+    def move_up(self):
+        self.y-=5
+    def move_down(self):
+        self.y+=5
+
     def draw(self):
+        if pygame.key.get_pressed()[pygame.K_q]:
+            Gun.move_down(self)
+        if pygame.key.get_pressed()[pygame.K_e]:
+            Gun.move_up(self)
+
+
         if abs(self.an) != math.pi/2:
-            x1 = (40 + math.cos(self.an + math.pi/4) * 20, 440 + math.sin(self.an + math.pi/4) * 20)
-            x3 = (40 + math.cos(self.an - math.pi/4) * 20, 440 + math.sin(self.an - math.pi/4) * 20)
-            x2 = (0, 440 + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
-            x4 = (0, 440 + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
+            x1 = (40 + math.cos(self.an + math.pi/4) * 20, self.y + math.sin(self.an + math.pi/4) * 20)
+            x3 = (40 + math.cos(self.an - math.pi/4) * 20, self.y + math.sin(self.an - math.pi/4) * 20)
+            x2 = (0, self.y + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
+            x4 = (0, self.y + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
         elif self.an > 0:
             x1 = (40 - 14.1, 440)
             x2 = (40 - 14.1, 0)
@@ -180,7 +192,7 @@ class Gun:
         if self.f2_on:
             if self.f2_power < 100:
                 self.f2_power += 1
-            self.color = RED
+                self.color = (self.f2_power * 1.44 + 110, 138.8 - 1.38 * self.f2_power, 138.8 - 1.38 * self.f2_power)
         else:
             self.color = GREY
 
@@ -257,8 +269,8 @@ class Target2(Target):
         self.screen = screen
         self.w=0.1
         self.R=randint(30,100)
-        self.x0=randint(30, WIDTH - 100)
-        self.y0=randint(50, HEIGHT-100)
+        self.x0=randint(100, WIDTH - 180)
+        self.y0=randint(100, HEIGHT-180)
         self.r=randint(10, 30)
         self.color = BLUE
         self.a=0
@@ -299,7 +311,7 @@ clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
 target2=Target2(screen)
-tank=Tank(screen)
+
 finished = False
 font=pygame.font.Font(None,36)
 
