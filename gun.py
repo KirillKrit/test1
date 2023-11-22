@@ -185,6 +185,8 @@ class Gun:
             self.color = GREY
 
 
+
+
 class Target:
     # self.points = 0
     # self.live = 1
@@ -297,6 +299,7 @@ clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
 target2=Target2(screen)
+tank=Tank(screen)
 finished = False
 font=pygame.font.Font(None,36)
 
@@ -326,7 +329,7 @@ while not finished:
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
+            if event.key == pygame.K_g:
                 ball_type = not ball_type
 
 
