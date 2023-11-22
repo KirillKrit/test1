@@ -120,7 +120,7 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
-        self.y=30
+        self.y=70
         self.x=0
         self.height=30
         self.width=30
@@ -184,7 +184,8 @@ class Gun:
         c2 = [self.width * cos + c1[0], self.width * sin + c1[1]]
         c3 = [self.width * cos + c4[0], self.width * sin + c4[1]]
         pygame.draw.polygon(self.screen, self.color, [c1, c2, c3, c4])
-
+        pygame.draw.circle(self.screen, [30, 100, 20], [self.x, self.y], 20)
+        pygame.draw.rect(screen, (0, 200, 64), (self.x, self.y-25 , 5, 50))
     def power_up(self):
         if self.f2_on:
             if self.f2_power < 100:
@@ -194,9 +195,85 @@ class Gun:
             self.color = GREY
 
 class Gun2(Gun):
-    def __init__(self, *args, **kwargs):
-        Ball.__init__(self, *args, **kwargs)
-        self.y = 500
+    def __init__(self, screen):
+        self.screen = screen
+        self.f2_power = 10
+        self.f2_on = 0
+        self.an = 1
+        self.color = GREY
+        self.y=540
+        self.x=0
+        self.height=30
+        self.width=30
+
+    def fire_start(self, event):
+        self.f2_on = 1
+
+    def fire_end(self, event):
+        """Выстрел мячом.
+
+        Происходит при отпускании кнопки мыши.
+        Начальные значения компонент скорости мяча vx и vy зависят от положения мыши.
+        """
+        global balls, bullet
+        bullet += 1
+        if ball_type:
+            new_ball = Ball(self.screen, y=self.y)
+        else:
+            new_ball = NewBall(self.screen, y=self.y)
+        new_ball.r += 5
+        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        new_ball.vx = self.f2_power * math.cos(self.an)
+        new_ball.vy = - self.f2_power * math.sin(self.an)
+        balls.append(new_ball)
+        self.f2_on = 0
+        self.f2_power = 10
+
+    def targetting(self, event):
+        """Прицеливание. Зависит от положения мыши."""
+        if event:
+            if (event.pos[0]-20)!=0:
+                self.an = math.atan((event.pos[1]-self.y) / (event.pos[0]-20))
+            elif (event.pos[1]-self.y)>0:
+                self.an = math.pi/2
+            else:
+                self.an = -math.pi/2
+        if self.f2_on:
+            self.color = RED
+        else:
+            self.color = GREY
+
+    def move_up(self):
+        if self.y>20:
+            self.y-=5
+
+    def move_down(self):
+        if self.y<580:
+            self.y+=5
+
+    def draw(self):
+        if pygame.key.get_pressed()[pygame.K_LEFT]:
+            Gun.move_down(self)
+        if pygame.key.get_pressed()[pygame.K_RIGHT]:
+            Gun.move_up(self)
+
+
+        cos = math.cos(self.an)
+        sin = math.sin(self.an)
+        c1 = [self.x - self.height / 2 * sin, self.y + self.height / 2 * cos]
+        c4 = [self.x + self.height / 2 * sin, self.y - self.height / 2 * cos]
+        c2 = [self.width * cos + c1[0], self.width * sin + c1[1]]
+        c3 = [self.width * cos + c4[0], self.width * sin + c4[1]]
+        pygame.draw.polygon(self.screen, self.color, [c1, c2, c3, c4])
+        pygame.draw.circle(self.screen, [30, 100, 20], [self.x, self.y], 20)
+        pygame.draw.rect(screen, (0, 200, 64), (self.x, self.y-25 , 5, 50))
+    def power_up(self):
+        if self.f2_on:
+            if self.f2_power < 100:
+                self.f2_power += 1
+                self.color = (self.f2_power * 1.44 + 110, 138.8 - 1.38 * self.f2_power, 138.8 - 1.38 * self.f2_power)
+        else:
+            self.color = GREY
 
 
 
@@ -351,6 +428,7 @@ while not finished:
     score_text = font.render("Очки: " + str(point), True, BLACK)
     screen.blit(score_text, (10, 10))
     gun.draw()
+    gun2.draw()
     target.draw()
     target.move()
     target2.draw()
@@ -362,7 +440,10 @@ while not finished:
             missiles.remove(b)
             missiles.append(booba(screen))
         if math.sqrt((b.x - gun.x)**2 + (b.y - gun.y)**2) < (b.r+10):
-            gun.y = 0
+            gun.y = 60
+            point = 0
+        elif math.sqrt((b.x - gun2.x)**2 + (b.y - gun2.y)**2) < (b.r+10):
+            gun2.y = 540
             point = 0
     for b in balls:
         b.draw()
@@ -383,9 +464,12 @@ while not finished:
             gun.fire2_end(event)
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_g:
                 ball_type = not ball_type
+            elif event.key==pygame.K_SPACE:
+                gun2.fire_start(event)
 
 
 
@@ -406,7 +490,7 @@ while not finished:
             balls.remove(b)
         if len(balls) > 15:
             balls.pop(0)
-        if b.livetimer<0:
+        if (b in balls) and b.livetimer<0:
             balls.remove(b)
     gun.power_up()
 
