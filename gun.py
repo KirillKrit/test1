@@ -120,7 +120,7 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
-        self.y=440
+        self.y=30
         self.x=0
         self.height=30
         self.width=30
@@ -193,6 +193,11 @@ class Gun:
         else:
             self.color = GREY
 
+class Gun2(Gun):
+    def __init__(self, *args, **kwargs):
+        Ball.__init__(self, *args, **kwargs)
+        self.y = 500
+
 
 
 
@@ -220,7 +225,7 @@ class Target:
         self.vy = 0
         self.k = -0.002
         self.r = randint(10, 50)
-        self.color = choice([RED, CYAN])
+        self.color = choice([BLUE, CYAN])
 
     def move(self):
         """Переместить target по прошествии единицы времени.
@@ -289,7 +294,30 @@ class Target2(Target):
         self.screen.blit(target_surf, (self.x - self.r, self.y - self.r))
 
 
+class booba:
+    def __init__(self, screen: pygame.Surface):
+        self.screen = screen
+        self.x=780
+        self.y=randint(0, HEIGHT)
+        self.r=randint(10, 30)
+        self.vx = randint(-20, -10)
+        self.ax = -1
+        self.color = BLUE
+        self.a = 0
+        self.points = 0
 
+
+    def move(self):
+        self.x += self.vx
+        self.vx += self.ax
+
+    def draw(self):
+        pygame.draw.circle(
+            self.screen,
+            RED,
+            (self.x, self.y),
+            self.r
+        )
 
 
 
@@ -306,8 +334,12 @@ background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 gun = Gun(screen)
+gun2=Gun2(screen)
 target = Target(screen)
 target2=Target2(screen)
+missiles=[]
+for i in range(3):
+    missiles.append(booba(screen))
 
 finished = False
 font=pygame.font.Font(None,36)
@@ -323,8 +355,22 @@ while not finished:
     target.move()
     target2.draw()
     target2.move2()
+    for b in missiles:
+        b.draw()
+        b.move()
+        if b.x<-b.r:
+            missiles.remove(b)
+            missiles.append(booba(screen))
+        if math.sqrt((b.x - gun.x)**2 + (b.y - gun.y)**2) < (b.r+10):
+            gun.y = 0
+            point = 0
     for b in balls:
         b.draw()
+    for b in balls:
+        for m in missiles:
+            if math.sqrt((b.x - m.x) ** 2 + (b.y - m.y) ** 2) < (m.r + b.r):
+                missiles.remove(m)
+                missiles.append(booba(screen))
     pygame.display.update()
 
     clock.tick(FPS)
@@ -343,6 +389,7 @@ while not finished:
 
 
 
+
     for b in balls:
         b.move()
         if b.hittest(target):
@@ -357,7 +404,7 @@ while not finished:
             b.live = 0
             point+=1
             balls.remove(b)
-        if len(balls) > 5:
+        if len(balls) > 15:
             balls.pop(0)
         if b.livetimer<0:
             balls.remove(b)
