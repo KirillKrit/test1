@@ -121,6 +121,9 @@ class Gun:
         self.an = 1
         self.color = GREY
         self.y=440
+        self.x=0
+        self.height=30
+        self.width=30
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -160,9 +163,12 @@ class Gun:
             self.color = GREY
 
     def move_up(self):
-        self.y-=5
+        if self.y>20:
+            self.y-=5
+
     def move_down(self):
-        self.y+=5
+        if self.y<580:
+            self.y+=5
 
     def draw(self):
         if pygame.key.get_pressed()[pygame.K_q]:
@@ -171,22 +177,13 @@ class Gun:
             Gun.move_up(self)
 
 
-        if abs(self.an) != math.pi/2:
-            x1 = (40 + math.cos(self.an + math.pi/4) * 20, self.y + math.sin(self.an + math.pi/4) * 20)
-            x3 = (40 + math.cos(self.an - math.pi/4) * 20, self.y + math.sin(self.an - math.pi/4) * 20)
-            x2 = (0, self.y + 40 * math.tan(-self.an) + 14.1 / math.cos(self.an))
-            x4 = (0, self.y + 40 * math.tan(-self.an) - 14.1 / math.cos(self.an))
-        elif self.an > 0:
-            x1 = (40 - 14.1, 440)
-            x2 = (40 - 14.1, 0)
-            x3 = (40 + 14.1, 440)
-            x4 = (40 + 14.1, 0)
-        else:
-            x1 = (40 + 14.1, 440)
-            x2 = (40 + 14.1, 600)
-            x3 = (40 - 14.1, 440)
-            x4 = (40 - 14.1, 600)
-        pygame.draw.polygon(screen, self.color, (x1, x2, x4, x3))
+        cos = math.cos(self.an)
+        sin = math.sin(self.an)
+        c1 = [self.x - self.height / 2 * sin, self.y + self.height / 2 * cos]
+        c4 = [self.x + self.height / 2 * sin, self.y - self.height / 2 * cos]
+        c2 = [self.width * cos + c1[0], self.width * sin + c1[1]]
+        c3 = [self.width * cos + c4[0], self.width * sin + c4[1]]
+        pygame.draw.polygon(self.screen, self.color, [c1, c2, c3, c4])
 
     def power_up(self):
         if self.f2_on:
